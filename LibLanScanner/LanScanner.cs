@@ -40,7 +40,11 @@ namespace LibLanScanner
         Device outputDevice;
         PacketCommunicator communicator;
         Dictionary<string,NetworkHost> Users;
+        bool receiveTask = false;
 
+
+        public delegate void NewHost(NetworkHost host);
+        public event NewHost OnCaptureHost;
 
 
         public LanScanner(Device outputDevice )
@@ -58,11 +62,13 @@ namespace LibLanScanner
                 communicator = outputDevice.NetworkDevice.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000);
 
 
-          
-
-            ReceiveResposnes();
+          if(!receiveTask)
+            {
+                ReceiveResposnes();
+                receiveTask = true;
+            }
+     
             SendingRequests(callBack);
-            
 
         }
 
@@ -128,7 +134,12 @@ namespace LibLanScanner
                                 }
                                 else
                                 {
-                                    Users.Add(ed.Source.ToString(), new NetworkHost { IP = arppck.SenderProtocolIpV4Address.ToString(), MAC = ed.Source.ToString() });
+                                    NetworkHost host = new NetworkHost { IP = arppck.SenderProtocolIpV4Address.ToString(), MAC = ed.Source.ToString() }
+                                    Users.Add(ed.Source.ToString(), host); 
+
+                                    if (OnCaptureHost != null)
+                                        OnCaptureHost(host);
+
                                 }
 
                                 continue;
@@ -140,6 +151,7 @@ namespace LibLanScanner
                 } while (true);
             });
         }
+
 
 
 
