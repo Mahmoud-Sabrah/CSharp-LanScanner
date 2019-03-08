@@ -19,7 +19,7 @@ namespace SimpleGUI
     {
 
         Device[] devices;
-
+        LanScanner scanner;
         public Form1()
         {
             InitializeComponent();
@@ -57,30 +57,52 @@ namespace SimpleGUI
                 MessageBox.Show("Choice an interface");
                 return;
             }
-            LanScanner scanner = new LanScanner(devices[list_devices.FocusedItem.Index]);
+
+
+
+
+            if (scanner != null)
+            {
+                scanner.StopScanning();
+                scanner = null;
+                btn_scan.Text = "Start Scanning";
+                progrBar_loading.Visible = false;
+                return;
+            }
+                
+
+            scanner = new LanScanner(devices[list_devices.FocusedItem.Index]);
             list_hosts.Items.Clear();
-            btn_scan.Enabled = false;
             btn_devices.Enabled = false;
+
+            btn_scan.Text = "Stop Scanning";
             progrBar_loading.Visible = true;
 
-            scanner.StartScanning( () =>
-            {
+            scanner.StartScanning();
+            scanner.OnCaptureHost += Scanner_OnCaptureHost;
 
-                Invoke(new Action(() =>
-                {
-                    progrBar_loading.Visible = false;
 
-                    foreach (LanScanner.NetworkHost x in scanner.GetUsers().Values)
-                    {
-                        ListViewItem item = new ListViewItem(new string[] { x.IP, x.MAC });
-                        list_hosts.Items.Add(item);
-                    }
-                    btn_scan.Enabled = true ;
-                    btn_devices.Enabled = true ;
-                    progrBar_loading.Visible = false     ;
-                }));
-            });
+
         }
+
+        private void Scanner_OnCaptureHost(LanScanner.NetworkHost host)
+        {
+
+            Invoke(new Action(() =>
+            {
+                foreach (ListViewItem x in list_devices.Items)
+                {
+                    if (x.SubItems[0].Text == host.IP && x.SubItems[1].Text == host.MAC)
+                        return;
+                }
+
+                ListViewItem item = new ListViewItem(new string[] { host.IP, host.MAC });
+                list_hosts.Items.Add(item);
+            }));
+
+        }
+
+
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {

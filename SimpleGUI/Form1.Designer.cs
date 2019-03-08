@@ -52,7 +52,7 @@
             this.columnHeader2});
             this.list_hosts.Location = new System.Drawing.Point(12, 160);
             this.list_hosts.Name = "list_hosts";
-            this.list_hosts.Size = new System.Drawing.Size(571, 97);
+            this.list_hosts.Size = new System.Drawing.Size(571, 188);
             this.list_hosts.TabIndex = 0;
             this.list_hosts.UseCompatibleStateImageBehavior = false;
             this.list_hosts.View = System.Windows.Forms.View.Details;
@@ -69,7 +69,7 @@
             // btn_scan
             // 
             this.btn_scan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_scan.Location = new System.Drawing.Point(481, 263);
+            this.btn_scan.Location = new System.Drawing.Point(481, 354);
             this.btn_scan.Name = "btn_scan";
             this.btn_scan.Size = new System.Drawing.Size(102, 23);
             this.btn_scan.TabIndex = 1;
@@ -122,7 +122,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.progrBar_loading});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 294);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 385);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(595, 22);
             this.statusStrip1.TabIndex = 4;
@@ -142,7 +142,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(595, 316);
+            this.ClientSize = new System.Drawing.Size(595, 407);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btn_devices);
             this.Controls.Add(this.list_devices);

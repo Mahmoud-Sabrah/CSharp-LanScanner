@@ -39,7 +39,7 @@ namespace LibLanScanner
    
         Device outputDevice;
         PacketCommunicator communicator;
-        Dictionary<string,NetworkHost> Users;
+
         bool receiveTask = false;
 
 
@@ -50,13 +50,11 @@ namespace LibLanScanner
         public LanScanner(Device outputDevice )
         {
             this.outputDevice = outputDevice;
-            this.Users = new Dictionary<string, NetworkHost>();
-
         }
 
-        public void StartScanning(Action callBack)
+        public void StartScanning()
         {
-            Users.Clear();
+      
 
             if (communicator == null)
                 communicator = outputDevice.NetworkDevice.Open(65536, PacketDeviceOpenAttributes.Promiscuous, 1000);
@@ -64,17 +62,20 @@ namespace LibLanScanner
 
           if(!receiveTask)
             {
-                ReceiveResposnes();
                 receiveTask = true;
+                ReceiveResposnes();
             }
      
-            SendingRequests(callBack);
+            SendingRequests();
 
         }
 
+        public void StopScanning()
+        {
+            receiveTask = false;
+        }
 
-
-        async void SendingRequests(Action callBack)
+        async void SendingRequests()
         {
             int[] fromAddress = outputDevice.networkAddress.ToString().Split('.').Select(x => Convert.ToInt32(x)).ToArray();
             int[] toAddress = outputDevice.broadcasatAddress.ToString().Split('.').Select(x => Convert.ToInt32(x)).ToArray();
@@ -92,7 +93,6 @@ namespace LibLanScanner
                             }
 
                 Thread.Sleep(2000);
-                callBack();
             });
 
         }
@@ -105,6 +105,10 @@ namespace LibLanScanner
 
                 do
                 {
+                    if (!receiveTask)
+                        return;
+
+
                     PacketCommunicatorReceiveResult result = communicator.ReceivePacket(out pck);
 
               
@@ -126,21 +130,11 @@ namespace LibLanScanner
                                 if (arppck.Operation != ArpOperation.Reply) continue;
 
 
-                                if(Users.ContainsKey(ed.Source.ToString()))
-                                {
-                                    NetworkHost host = Users[ed.Source.ToString()];
-                                    host.IP = arppck.SenderProtocolIpV4Address.ToString();
+                                NetworkHost host = new NetworkHost { IP = arppck.SenderProtocolIpV4Address.ToString(), MAC = ed.Source.ToString() };
+                                OnCaptureHost?.Invoke(host);
 
-                                }
-                                else
-                                {
-                                    NetworkHost host = new NetworkHost { IP = arppck.SenderProtocolIpV4Address.ToString(), MAC = ed.Source.ToString() }
-                                    Users.Add(ed.Source.ToString(), host); 
 
-                                    if (OnCaptureHost != null)
-                                        OnCaptureHost(host);
 
-                                }
 
                                 continue;
                             }
@@ -155,10 +149,7 @@ namespace LibLanScanner
 
 
 
-        public Dictionary<string, NetworkHost> GetUsers()
-        {
-            return Users;
-        }
+    
 
         Packet ArpGenerator(string SenderMacAddress, string DestinatonMacAddress, IPAddress SenderIpAddress, IPAddress DestinationIpAddress, bool isRequest)
         {
