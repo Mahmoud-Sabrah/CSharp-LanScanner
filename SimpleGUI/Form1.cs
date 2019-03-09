@@ -90,7 +90,7 @@ namespace SimpleGUI
 
             Invoke(new Action(() =>
             {
-                foreach (ListViewItem x in list_devices.Items)
+                foreach (ListViewItem x in list_hosts.Items)
                 {
                     if (x.SubItems[0].Text == host.IP && x.SubItems[1].Text == host.MAC)
                         return;
